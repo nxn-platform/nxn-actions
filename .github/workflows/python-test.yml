@@ -1,0 +1,52 @@
+name: Python Test
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "Python version to use"
+        required: false
+        type: string
+        default: "3.14"
+      run-ty:
+        description: "Run ty type checker"
+        required: false
+        type: boolean
+        default: true
+      check-paths:
+        description: "Paths to check with ruff and ty (space-separated)"
+        required: false
+        type: string
+        default: "."
+      test-paths:
+        description: "Paths to pass to pytest"
+        required: false
+        type: string
+        default: "tests/"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Lint
+        run: uv run ruff check ${{ inputs.check-paths }}
+
+      - name: Type check
+        if: ${{ inputs.run-ty }}
+        run: uv run ty check ${{ inputs.check-paths }}
+
+      - name: Run tests
+        run: uv run pytest ${{ inputs.test-paths }} -v
