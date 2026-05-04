@@ -43,8 +43,12 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Configure git for private repos
-        if: ${{ secrets.GH_PAT != '' }}
-        run: git config --global url."https://x-access-token:${{ secrets.GH_PAT }}@github.com/".insteadOf "https://github.com/"
+        run: |
+          if [ -n "$GH_PAT" ]; then
+            git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
+          fi
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
 
       - name: Install dependencies
         run: uv sync --all-extras
