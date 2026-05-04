@@ -2,6 +2,9 @@ name: Python Test
 
 on:
   workflow_call:
+    secrets:
+      GH_PAT:
+        required: false
     inputs:
       python-version:
         description: "Python version to use"
