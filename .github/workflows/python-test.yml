@@ -2,6 +2,10 @@ name: Python Test
 
 on:
   workflow_call:
+    secrets:
+      GH_PAT:
+        description: "GitHub PAT with read access to private repos (for backend-adapters)"
+        required: false
     inputs:
       python-version:
         description: "Python version to use"
@@ -39,9 +43,9 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Configure git for private repos
-        run: git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+        run: git config --global url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "https://github.com/"
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GIT_TOKEN: ${{ secrets.GH_PAT || github.token }}
 
       - name: Install dependencies
         run: uv sync --all-extras
