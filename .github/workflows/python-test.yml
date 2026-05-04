@@ -2,10 +2,6 @@ name: Python Test
 
 on:
   workflow_call:
-    secrets:
-      GH_PAT:
-        description: "GitHub PAT with read access to private repos (for backend-adapters)"
-        required: false
     inputs:
       python-version:
         description: "Python version to use"
