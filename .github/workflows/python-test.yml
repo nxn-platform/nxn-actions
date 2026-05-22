@@ -42,12 +42,19 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Configure git for private repos
+        # Two-tier credential strategy:
+        #   1. If the caller supplied a GH_PAT (legacy), use it — this
+        #      keeps repos that haven't migrated to the new access model
+        #      working without a YAML change.
+        #   2. Otherwise fall back to the workflow's auto-minted
+        #      ``github.token``. Combined with ``access_level=organization``
+        #      on the private dependency repos (set via gh api
+        #      ``actions/permissions/access``), this lets any org repo
+        #      clone any other org repo with no PAT involved.
         run: |
-          if [ -n "$GH_PAT" ]; then
-            git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
-          fi
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "https://github.com/"
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          TOKEN: ${{ secrets.GH_PAT || github.token }}
 
       - name: Install dependencies
         run: uv sync --all-extras
